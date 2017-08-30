@@ -39,6 +39,12 @@ class MatchDialog(gui.GuiDialog):
     method_gbx.setLayout(self.matchers)
     self.base_layout.addWidget(method_gbx)
 
+    self.stategy = widgets.QItemRadioGroup('matches/strategies',
+                                           'strategy_name', 'strategy_type')
+    strategy_gbx = QtWidgets.QGroupBox("Match Strategies")
+    strategy_gbx.setLayout(self.strategy)
+    self.base_layout.addWidget(strategy_gbx)
+
     self.bottom_layout("&Start matching")
 
   def data(self):
@@ -48,4 +54,5 @@ class MatchDialog(gui.GuiDialog):
             'target': self.targetGrp.get_result(),
             'target_project': self.target_project.currentData(),
             'target_file': self.target_file.currentData(),
-            'matchers': self.matchers.get_result()}
+            'matchers': self.matchers.get_result(),
+            'strategy': self.strategy.get_result()}
