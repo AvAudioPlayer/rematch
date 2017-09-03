@@ -28,8 +28,10 @@ class MatchDialog(gui.GuiDialog):
     choices = [("Entire DB", 'db', None),
                ("Project", 'project', self.target_project),
                ("Another file", 'file', self.target_file)]
-    self.targetGrp = widgets.QRadioGroup("Match target", *choices)
-    self.base_layout.addWidget(self.targetGrp)
+    self.target = widgets.QRadioExtraLayout(*choices)
+    self.target_gbx = QtWidgets.QGroupBox("Match target")
+    self.target_gbx.setLayout(self.target)
+    self.base_layout.addWidget(self.target_gbx)
 
     self.matchers = widgets.QItemCheckBoxes('matches/matchers', 'matcher_name',
                                             'match_type',

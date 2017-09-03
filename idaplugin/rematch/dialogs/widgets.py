@@ -98,51 +98,65 @@ class QItemCheckBoxes(QItem, QtWidgets.QGridLayout):
     return [cb.id for cb in self.checkboxes if cb.isChecked()]
 
 
-class QRadioGroup(QtWidgets.QGroupBox):
-  def __init__(self, title, *radios, **kwargs):
-    checked = kwargs.pop('checked', None)
+class QRadioLayout(QtWidgets.QGirdLayout):
+  def __init__(self, *radios, **kwargs):
+    self.checked = kwargs.pop('checked', None)
 
-    super(QRadioGroup, self).__init__(title, **kwargs)
+    super(QRadioLayout, self).__init__(**kwargs)
 
     self.radiogroup = QtWidgets.QButtonGroup()
-    layout = QtWidgets.QGridLayout()
-    layout.setColumnStretch(1, 1)
-    self.setLayout(layout)
+    self.setColumnStretch(1, 1)
+    self.create_items(radios)
 
+  def create_items(self, radios):
     for i, radio in enumerate(radios):
-      item_name, item_id, item_extra = radio
-      self.ceate_item(item_name, item_id, item_extra)
+      item_name, item_id = radio
+      item_widget = self.create_item(item_name, item_id, i=i)
+      self.addWidget(item_widget, i, 0, QtCore.Qt.AlignTop)
 
-  def ceate_item(self, item_name, item_id, extra=None):
-      item_widget = QtWidgets.QRadioButton(item_name)
-      item_widget.setObjectName(item_id)
+  def create_item(self, item_name, item_id, i):
+    item_widget = QtWidgets.QRadioButton(item_name)
+    item_widget.setObjectName(item_id)
 
-      self.radiogroup.addButton(item_widget, i)
-      layout.addWidget(item_widget, i, 0, QtCore.Qt.AlignTop)
-      if extra is not None:
-        layout.addWidget(extra, i, 1, QtCore.Qt.AlignTop)
-        # if extra controller comes disabled, make sure it stays that way
-        # and also make the radio box disabled
-        if extra.isEnabled():
-          item_widget.toggled.connect(extra.setEnabled)
-          extra.setEnabled(False)
-        else:
-          item_widget.setEnabled(False)
-        # if extra controller comes with a tooltip, copy that tooltip to
-        # radio button itself
-        if extra.toolTip():
-          item_widget.setToolTip(extra.toolTip())
+    self.radiogroup.addButton(item_widget, i)
 
-      # if checked is supplied, set correct radio as checked
-      # else set first radio as checked`
-      if (checked is None and i == 0) or checked == item_id:
-        item_widget.setChecked(True)
+    # if checked is supplied, set correct radio as checked
+    # else set first radio as checked`
+    if (self.checked is None and i == 0) or self.checked == item_id:
+      item_widget.setChecked(True)
+
+    return item_widget
 
   def get_result(self):
     return self.radiogroup.checkedButton().objectName()
 
 
-class QItemRadioGroup(QItem, QRadioGroup):
+class QRadioExtraLayout(QRadioLayout):
+  def create_items(self, radios):
+    for i, radio in enumerate(radios):
+      item_name, item_id, item_extra = radio
+      item_widget = self.create_item(item_name, item_id, i)
+      self.addWidget(item_widget, i, 0, QtCore.Qt.AlignTop)
+      if item_extra:
+        self.update_item_extra(item_widget, item_extra)
+        self.addWidget(item_extra, i, 1, QtCore.Qt.AlignTop)
+
+  @staticmethod
+  def update_item_extra(item_widget, item_extra):
+    # if extra controller comes disabled, make sure it stays that way
+    # and also make the radio box disabled
+    if item_extra.isEnabled():
+      item_widget.toggled.connect(item_extra.setEnabled)
+      item_extra.setEnabled(False)
+    else:
+      item_widget.setEnabled(False)
+    # if item_extra controller comes with a tooltip, copy that tooltip to
+    # radio button itself
+    if item_extra.toolTip():
+      item_widget.setToolTip(item_extra.toolTip())
+
+
+class QItemRadioGroup(QItem, QRadioLayout):
   # TODO: cehck the multi inheritence
   # TODO: check the extra param passed to create_item from load()
   # TODO: make sure this is reasonavble and working
