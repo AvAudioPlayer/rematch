@@ -98,7 +98,7 @@ class QItemCheckBoxes(QItem, QtWidgets.QGridLayout):
     return [cb.id for cb in self.checkboxes if cb.isChecked()]
 
 
-class QRadioLayout(QtWidgets.QGirdLayout):
+class QRadioLayout(QtWidgets.QGridLayout):
   def __init__(self, *radios, **kwargs):
     self.checked = kwargs.pop('checked', None)
 
