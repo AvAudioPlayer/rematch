@@ -148,3 +148,8 @@ class MatcherSerializer(serializers.Serializer):
   vector_type = serializers.ReadOnlyField()
   matcher_name = serializers.ReadOnlyField()
   matcher_description = serializers.ReadOnlyField()
+
+
+class StrategySerializer(serializers.Serializer):
+  strategy_type = serializers.ReadOnlyField()
+  strategy_name = serializers.ReadOnlyField()
