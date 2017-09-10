@@ -81,8 +81,8 @@ class QItem(object):
 
 
 class QItemCheckBoxes(QItem, QtWidgets.QGridLayout):
-  def __init__(self, **kwargs):
-    super(QItemCheckBoxes, self).__init__(**kwargs)
+  def __init__(self, *args, **kwargs):
+    super(QItemCheckBoxes, self).__init__(*args, **kwargs)
     self.checkboxes = []
 
   def create_item(self, item_name, item_id, item_description):
