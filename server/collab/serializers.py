@@ -153,3 +153,4 @@ class MatcherSerializer(serializers.Serializer):
 class StrategySerializer(serializers.Serializer):
   strategy_type = serializers.ReadOnlyField()
   strategy_name = serializers.ReadOnlyField()
+  strategy_description = serializers.ReadOnlyField()
