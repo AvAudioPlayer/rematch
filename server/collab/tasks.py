@@ -20,28 +20,28 @@ def match(task_id):
                                    'source_start', 'source_end',
                                    'source_file_version_id',
                                    'target_project_id', 'target_file_id',
-                                   'matchers').get()
+                                   'matchers', 'strategy').get()
     print(task_values)
-    (source_vectors, target_vectors, matchers) = build_filters(*task_values)
+    (source_vectors, target_vectors, strategy) = build_filters(*task_values)
 
     # recording the task has started
-    task.update(status=Task.STATUS_STARTED, progress=0,
-                progress_max=len(matchers), task_id=match.request.id)
+    task.update(status=Task.STATUS_STARTED, task_id=match.request.id,
+                progress_max=len(strategy.step_count()), progress=0)
 
     print("Running task {}".format(match.request.id))
     # TODO: order might be important here
-    for matcher in matchers_list:
-      if matcher.match_type not in matchers:
-        continue
-      matchers.remove(matcher.match_type)
+    for matcher in strategy.get_next_matcher():
+#      if matcher.match_type not in matchers:
+#        continue
+#      matchers.remove(matcher.match_type)
 
       match_by_matcher(task_id, matcher, source_vectors, target_vectors)
 
       task.update(progress=F('progress') + 1)
 
-    if matchers:
-      msg = "Unfamiliar matchers were requested: {}".format(matchers)
-      raise ValueError(msg)
+#    if matchers:
+#      msg = "Unfamiliar matchers were requested: {}".format(matchers)
+#      raise ValueError(msg)
   except Exception:
     task.update(status=Task.STATUS_FAILED, finished=now())
     raise
