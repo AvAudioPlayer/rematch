@@ -1,3 +1,6 @@
-strategies_list = []
+from .strategy import Strategy
+from .all_strategy import AllStrategy
 
-__all__ = ['strategies_list']
+strategies_list = [AllStrategy]
+
+__all__ = ['Strategy', 'AllStrategy', 'strategies_list']
