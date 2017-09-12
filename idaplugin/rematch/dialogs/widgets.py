@@ -76,16 +76,18 @@ class QItem(object):
                            item_id in self.exclude):
         continue
 
-      item = self.create_item(i, item_name, item_id, item_description)
+      item = self.create_item(i=i, item_name=item_name, item_id=item_id,
+                              item_description=item_description)
       self.addWidget(item, i / self.columns, i % self.columns)
 
 
 class QItemCheckBoxes(QItem, QtWidgets.QGridLayout):
   def __init__(self, *args, **kwargs):
-    super(QItemCheckBoxes, self).__init__(*args, **kwargs)
     self.checkboxes = []
+    super(QItemCheckBoxes, self).__init__(*args, **kwargs)
 
-  def create_item(self, item_name, item_id, item_description):
+  def create_item(self, item_name, item_id, item_description, **kwargs):
+    del kwargs
     widget = QtWidgets.QCheckBox(item_name)
     widget.id = item_id
     widget.setChecked(True)
@@ -111,10 +113,12 @@ class QRadioLayout(QtWidgets.QGridLayout):
   def create_items(self, radios):
     for i, radio in enumerate(radios):
       item_name, item_id = radio
-      item_widget = self.create_item(item_name, item_id, i=i)
+      item_widget = self.create_item(i=i, item_name=item_name,
+                                     item_id=item_id)
       self.addWidget(item_widget, i, 0, QtCore.Qt.AlignTop)
 
-  def create_item(self, item_name, item_id, i):
+  def create_item(self, i, item_name, item_id, **kwargs):
+    del kwargs
     item_widget = QtWidgets.QRadioButton(item_name)
     item_widget.setObjectName(item_id)
 
@@ -135,7 +139,8 @@ class QRadioExtraLayout(QRadioLayout):
   def create_items(self, radios):
     for i, radio in enumerate(radios):
       item_name, item_id, item_extra = radio
-      item_widget = self.create_item(item_name, item_id, i)
+      item_widget = self.create_item(i=i, item_name=item_name,
+                                     item_id=item_id)
       self.addWidget(item_widget, i, 0, QtCore.Qt.AlignTop)
       if item_extra:
         self.update_item_extra(item_widget, item_extra)

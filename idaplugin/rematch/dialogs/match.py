@@ -43,7 +43,7 @@ class MatchDialog(gui.GuiDialog):
     method_gbx.setLayout(self.matchers)
     self.base_layout.addWidget(method_gbx)
 
-    self.stategy = widgets.QItemRadioGroup('matches/strategies',
+    self.strategy = widgets.QItemRadioGroup('matches/strategies',
                                            'strategy_name', 'strategy_type',
                                            'strategy_description')
     strategy_gbx = QtWidgets.QGroupBox("Match Strategies")
