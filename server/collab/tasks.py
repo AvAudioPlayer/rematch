@@ -2,6 +2,7 @@ from django.utils.timezone import now
 from django.db.models import F
 from collab.models import Task, Vector, Match
 from collab.matchers import matchers_list
+from strategies import strategy_factory
 
 from celery import shared_task
 
@@ -20,13 +21,15 @@ def match(task_id):
                                    'source_start', 'source_end',
                                    'source_file_version_id',
                                    'target_project_id', 'target_file_id',
-                                   'matchers', 'strategy').get()
-    print(task_values)
-    (source_vectors, target_vectors, strategy) = build_filters(*task_values)
+                                   'matchers', 'strategy', named=True).get()
+
+    # create strategy instance
+    strategy_cls = strategies.get_strategy(task_values.strategy)
+    strategy = strategy_cls(**task_values._asdict())
 
     # recording the task has started
     task.update(status=Task.STATUS_STARTED, task_id=match.request.id,
-                progress_max=len(strategy.step_count()), progress=0)
+                progress_max=strategy.step_count(), progress=0)
 
     print("Running task {}".format(match.request.id))
     # TODO: order might be important here
@@ -48,29 +51,6 @@ def match(task_id):
 
   task.update(status=Task.STATUS_DONE, finished=now())
 
-
-def build_filters(source_file, source_start, source_end, source_file_version,
-                  target_project, target_file, matchers):
-  source_filter = {'file_version__file': source_file,
-                   'file_version_id': source_file_version}
-  if source_start:
-    source_filter['instance__offset__gte'] = source_start
-  if source_end:
-    source_filter['instance__offset__lte'] = source_end
-  source_vectors = Vector.objects.filter(**source_filter)
-
-  target_filter = {}
-  if target_project:
-    target_filter = {'file_version__file__project_id': target_project}
-  elif target_file:
-    target_filter = {'file_version__file': target_file}
-  target_vectors = Vector.objects.filter(**target_filter)
-  self_exclude = {'file_version__file': source_file}
-  target_vectors = target_vectors.exclude(**self_exclude)
-
-  matchers = set(json.loads(matchers))
-
-  return (source_vectors, target_vectors, matchers)
 
 
 # Django bulk_create converts `objs` to a list, rendering any generator
