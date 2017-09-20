@@ -1,3 +1,8 @@
+from ..models import Vector
+
+import json
+
+
 class Strategy(object):
   def __init__(self, source_file, source_start, source_end,
                source_file_version, target_project, target_file, matchers):
@@ -7,7 +12,7 @@ class Strategy(object):
       self.source_filter['instance__offset__gte'] = source_start
     if source_end:
       self.source_filter['instance__offset__lte'] = source_end
-    self.source_vectors = Vector.objects.filter(**source_filter)
+    self.source_vectors = Vector.objects.filter(**self.source_filter)
 
     self.target_filter = {}
     if target_project:

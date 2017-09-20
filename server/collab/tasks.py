@@ -1,12 +1,9 @@
 from django.utils.timezone import now
 from django.db.models import F
-from collab.models import Task, Vector, Match
-from collab.matchers import matchers_list
-from strategies import strategy_factory
+from collab.models import Task, Match
+import strategies
 
 from celery import shared_task
-
-import json
 
 from itertools import islice, chain
 
@@ -34,23 +31,22 @@ def match(task_id):
     print("Running task {}".format(match.request.id))
     # TODO: order might be important here
     for matcher in strategy.get_next_matcher():
-#      if matcher.match_type not in matchers:
-#        continue
-#      matchers.remove(matcher.match_type)
+      # if matcher.match_type not in matchers:
+      #   continue
+      # matchers.remove(matcher.match_type)
 
       match_by_matcher(task_id, matcher, source_vectors, target_vectors)
 
       task.update(progress=F('progress') + 1)
 
-#    if matchers:
-#      msg = "Unfamiliar matchers were requested: {}".format(matchers)
-#      raise ValueError(msg)
+    # if matchers:
+    #   msg = "Unfamiliar matchers were requested: {}".format(matchers)
+    #   raise ValueError(msg)
   except Exception:
     task.update(status=Task.STATUS_FAILED, finished=now())
     raise
 
   task.update(status=Task.STATUS_DONE, finished=now())
-
 
 
 # Django bulk_create converts `objs` to a list, rendering any generator
