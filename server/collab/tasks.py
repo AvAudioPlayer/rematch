@@ -1,7 +1,7 @@
 from django.utils.timezone import now
 from django.db.models import F
-from collab.models import Task, Match
-import strategies
+from collab.models import Task, Vector, Match
+from collab import strategies
 
 from celery import shared_task
 
@@ -23,6 +23,11 @@ def match(task_id):
     # create strategy instance
     strategy_cls = strategies.get_strategy(task_values.strategy)
     strategy = strategy_cls(**task_values._asdict())
+
+    # build vector objects from strategy filters
+    source_filters, target_filters = strategy.get_filters()
+    source_vectors = Vector.objects.filter(source_filters)
+    target_vectors = Vector.objects.filter(target_filters)
 
     # recording the task has started
     task.update(status=Task.STATUS_STARTED, task_id=match.request.id,
