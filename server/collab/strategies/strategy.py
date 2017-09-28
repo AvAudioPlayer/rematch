@@ -40,9 +40,6 @@ class Strategy(object):
 
     return target_filter
 
-  def get_filters(self):
-    return self.get_source_filters(), self.get_target_filters()
-
   @classmethod
   def is_abstract(cls):
     return not (hasattr(cls, 'strategy_type') and

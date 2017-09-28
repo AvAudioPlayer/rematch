@@ -14,20 +14,17 @@ def match(task_id):
     task = Task.objects.filter(id=task_id)
 
     # get input parameters
-    task_values = task.values_list('source_file_version__file_id',
-                                   'source_start', 'source_end',
-                                   'source_file_version_id',
-                                   'target_project_id', 'target_file_id',
-                                   'matchers', 'strategy', named=True).get()
+    task_values = task.values('source_start', 'source_end', 'target_file',
+                              'target_project', 'source_file_version',
+                              'matchers', 'strategy',
+                              source_file=F('source_file_version__file')).get()
 
     # create strategy instance
-    strategy_cls = strategies.get_strategy(task_values.strategy)
-    strategy = strategy_cls(**task_values._asdict())
+    strategy = strategies.get_strategy(**task_values)
 
     # build vector objects from strategy filters
-    source_filters, target_filters = strategy.get_filters()
-    source_vectors = Vector.objects.filter(source_filters)
-    target_vectors = Vector.objects.filter(target_filters)
+    source_vectors = Vector.objects.filter(strategy.get_source_filters())
+    target_vectors = Vector.objects.filter(strategy.get_target_filters())
 
     # recording the task has started
     task.update(status=Task.STATUS_STARTED, task_id=match.request.id,
