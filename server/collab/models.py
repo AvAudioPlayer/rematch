@@ -137,7 +137,8 @@ class Task(models.Model):
   target_file = models.ForeignKey(File, models.CASCADE, null=True)
   target_project = models.ForeignKey(Project, models.CASCADE, null=True)
   matchers = models.TextField(default='[]')
-  strategy = models.CharField(choices=strategy_choices(), max_length=256)
+  strategy = models.CharField(choices=strategy_choices(), max_length=256,
+                              default='all_strategy')
 
   progress = models.PositiveSmallIntegerField(default=0)
   progress_max = models.PositiveSmallIntegerField(null=True)
