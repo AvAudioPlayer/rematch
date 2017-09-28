@@ -28,22 +28,12 @@ def match(task_id):
 
     # recording the task has started
     task.update(status=Task.STATUS_STARTED, task_id=match.request.id,
-                progress_max=strategy.step_count(), progress=0)
+                progress_max=len(strategy), progress=0)
 
     print("Running task {}".format(match.request.id))
-    # TODO: order might be important here
-    for matcher in strategy.get_next_matcher():
-      # if matcher.match_type not in matchers:
-      #   continue
-      # matchers.remove(matcher.match_type)
-
-      match_by_matcher(task_id, matcher, source_vectors, target_vectors)
-
+    for step in strategy:
+      match_by_matcher(task_id, step, source_vectors, target_vectors)
       task.update(progress=F('progress') + 1)
-
-    # if matchers:
-    #   msg = "Unfamiliar matchers were requested: {}".format(matchers)
-    #   raise ValueError(msg)
   except Exception:
     task.update(status=Task.STATUS_FAILED, finished=now())
     raise

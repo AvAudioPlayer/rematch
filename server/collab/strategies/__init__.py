@@ -20,4 +20,5 @@ def get_strategy(strategy, **kwargs):
                    "strategies: {}".format(strategy, strategy_types))
 
 
-__all__ = ['Strategy', 'AllStrategy', 'strategies_list']
+__all__ = ['Strategy', 'AllStrategy', 'strategies_list', 'strategy_choices',
+           'get_strategy']
