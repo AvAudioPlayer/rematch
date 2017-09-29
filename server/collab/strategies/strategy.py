@@ -2,7 +2,7 @@ from django.db.models import Q
 
 import json
 
-from collab.matchers import get_matcher, matchers_list
+from collab.matchers import matchers_list
 
 
 class Strategy(object):
@@ -17,6 +17,11 @@ class Strategy(object):
 
     self.matchers = set(json.loads(matchers))
     self.ordered_matchers = self.get_ordered_matchers()
+
+    if len(self.matchers) != len(self.ordered_matchers):
+      raise ValueError("Requested matchers({}) and ordered matchers({}) have "
+                       "different lengths".format(len(self.matchers),
+                                                  len(self.ordered_matchers)))
 
   def get_source_filters(self):
     # make sure vector belongs to the file_version (and therefore the file)
@@ -47,13 +52,13 @@ class Strategy(object):
   def get_ordered_matchers(self):
     # return matchers in self.matchers ordered by the order they appear in
     # matchers.matchers_list
-    return [m for m in matchers_list if m in self.matchers]
+    return [m for m in matchers_list if m.match_type in self.matchers]
 
   def __len__(self):
     return len(self.matchers)
 
   def __getitem__(self, i):
-    return get_matcher(self.ordered_matchers[i])
+    return self.ordered_matchers[i]
 
   @classmethod
   def is_abstract(cls):
