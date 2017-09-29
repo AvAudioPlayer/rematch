@@ -38,6 +38,10 @@ def match(task_id):
     task.update(status=Task.STATUS_FAILED, finished=now())
     raise
 
+  if not task.filter(progress=F('progress_max')).count():
+    raise RuntimeError("Task successfully finished without executing all "
+                       "steps")
+
   task.update(status=Task.STATUS_DONE, finished=now())
 
 
