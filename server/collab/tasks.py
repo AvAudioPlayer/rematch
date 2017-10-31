@@ -32,7 +32,7 @@ def match(task_id):
 
     print("Running task {}".format(match.request.id))
     for step in strategy:
-      match_by_matcher(task_id, step, source_vectors, target_vectors)
+      match_by_step(task_id, step, source_vectors, target_vectors)
       task.update(progress=F('progress') + 1)
   except Exception:
     task.update(status=Task.STATUS_FAILED, finished=now())
@@ -57,35 +57,35 @@ def batch(iterable, size):
         yield chain([batchiter.next()], batchiter)
 
 
-def match_by_matcher(task_id, matcher, source_vectors, target_vectors):
+def match_by_step(task_id, step, source_vectors, target_vectors):
   start = now()
-  source_vectors = source_vectors.filter(type=matcher.vector_type)
-  target_vectors = target_vectors.filter(type=matcher.vector_type)
+  source_vectors = source_vectors.filter(step.get_source_filters())
+  target_vectors = target_vectors.filter(step.get_target_filters())
 
   source_count = source_vectors.count()
   target_count = target_vectors.count()
-  if source_count and target_count:
-    print("Matching {} local vectors to {} remote vectors by {}"
-          "".format(source_count, target_count, matcher))
-    match_objs = gen_match_objs(task_id, matcher, source_vectors,
-                                target_vectors)
-    for b in batch(match_objs, 10000):
-      Match.objects.bulk_create(b)
-    matches = Match.objects.filter(task_id=task_id,
-                                   type=matcher.match_type).count()
-    print("Resulted in {} match objects".format(matches))
-  else:
-    print("Skipped matcher {} with {} local vectors and {} remote vectors"
-          "".format(matcher, source_count, target_count))
-  print("\tTook: {}".format(now() - start))
+  if not source_count or not target_count:
+    print("Skipped step {} with {} local vectors and {} remote vectors"
+          "".format(step, source_count, target_count))
+    return
+
+  print("Matching {} local vectors to {} remote vectors by {}"
+        "".format(source_count, target_count, step))
+
+  match_objs = gen_match_objs(task_id, step, source_vectors, target_vectors)
+  for b in batch(match_objs, 10000):
+    Match.objects.bulk_create(b)
+  matches = Match.objects.filter(step.get_results_filter()).count()
+  print("Took {} and resulted in {} match objects".format(now() - start,
+                                                          matches))
 
 
-def gen_match_objs(task_id, matcher, source_vectors, target_vectors):
-  matches = matcher.match(source_vectors, target_vectors)
+def gen_match_objs(task_id, step, source_vectors, target_vectors):
+  matches = step.gen_matches(source_vectors, target_vectors)
   for source_instance, target_instance, score in matches:
     if score < 50:
       continue
     mat = Match(task_id=task_id, from_instance_id=source_instance,
                 to_instance_id=target_instance, score=score,
-                type=matcher.match_type)
+                type=step.get_match_type())
     yield mat
