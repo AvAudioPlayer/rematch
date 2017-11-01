@@ -17,6 +17,7 @@ class Strategy(object):
 
     self.matchers = set(json.loads(matchers))
     self.ordered_matchers = self.get_ordered_matchers()
+    self.ordered_steps = self.get_ordered_steps()
 
     if len(self.matchers) != len(self.ordered_matchers):
       raise ValueError("Requested matchers({}) and ordered matchers({}) have "
@@ -54,14 +55,19 @@ class Strategy(object):
     # matchers.matchers_list
     return [m for m in matchers_list if m.match_type in self.matchers]
 
+  def get_ordered_steps(self):
+    raise NotImplementedError("get_ordered_steps method must be implemeneted "
+                              "by a strategy implementation class.")
+
   def __len__(self):
-    return len(self.matchers)
+    return len(self.ordered_steps)
 
   def __getitem__(self, i):
-    return self.ordered_matchers[i]
+    return self.ordered_steps[i]
 
   @classmethod
   def is_abstract(cls):
     return not (hasattr(cls, 'strategy_type') and
                 hasattr(cls, 'strategy_description') and
-                hasattr(cls, 'strategy_name'))
+                hasattr(cls, 'strategy_name') and
+                hasattr(cls, 'get_ordered_steps'))

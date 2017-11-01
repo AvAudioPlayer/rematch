@@ -1,4 +1,5 @@
 from .strategy import Strategy
+from .strategy_step import StrategyStep
 
 
 class AllStrategy(Strategy):
@@ -10,3 +11,6 @@ class AllStrategy(Strategy):
                           "makes this strategy the slowest possible, but it "
                           "provides as many results as possible (which can be "
                           "an advantage or a disadvantage at the same time).")
+
+  def get_ordered_steps(self):
+    return [StrategyStep(matcher) for matcher in self.ordered_matchers]

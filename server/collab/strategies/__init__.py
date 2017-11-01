@@ -1,3 +1,4 @@
+from .strategy_step import StrategyStep
 from .strategy import Strategy
 from .all_strategy import AllStrategy
 
@@ -20,5 +21,5 @@ def get_strategy(strategy, **kwargs):
                    "strategies: {}".format(strategy, strategy_types))
 
 
-__all__ = ['Strategy', 'AllStrategy', 'strategies_list', 'strategy_choices',
-           'get_strategy']
+__all__ = ['Strategy', 'StrategyStep', 'AllStrategy', 'strategies_list',
+           'strategy_choices', 'get_strategy']
