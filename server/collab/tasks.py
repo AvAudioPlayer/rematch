@@ -75,9 +75,10 @@ def match_by_step(task_id, step, source_vectors, target_vectors):
   match_objs = gen_match_objs(task_id, step, source_vectors, target_vectors)
   for b in batch(match_objs, 10000):
     Match.objects.bulk_create(b)
-  matches = Match.objects.filter(step.get_results_filter()).count()
+  matches_count = Match.objects.filter(task_id=task_id)
+  matches_count = matches_count.filter(step.get_results_filter()).count()
   print("Took {} and resulted in {} match objects".format(now() - start,
-                                                          matches))
+                                                          matches_count))
 
 
 def gen_match_objs(task_id, step, source_vectors, target_vectors):
