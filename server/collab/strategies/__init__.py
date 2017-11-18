@@ -1,9 +1,10 @@
 from .strategy_step import StrategyStep
 from .strategy import Strategy
 from .all_strategy import AllStrategy
+from .binning_strategy import BinningStrategy
 
 
-strategies_list = [AllStrategy]
+strategies_list = [AllStrategy, BinningStrategy]
 
 
 def strategy_choices():
@@ -12,6 +13,7 @@ def strategy_choices():
 
 
 def get_strategy(strategy, **kwargs):
+  print("getting strategy for {}".format(strategy))
   for strategy_cls in strategies_list:
     if strategy_cls.strategy_type == strategy:
       return strategy_cls(**kwargs)
@@ -21,5 +23,5 @@ def get_strategy(strategy, **kwargs):
                    "strategies: {}".format(strategy, strategy_types))
 
 
-__all__ = ['Strategy', 'StrategyStep', 'AllStrategy', 'strategies_list',
-           'strategy_choices', 'get_strategy']
+__all__ = ['Strategy', 'StrategyStep', 'AllStrategy', 'BinningStrategy',
+           'strategies_list', 'strategy_choices', 'get_strategy']

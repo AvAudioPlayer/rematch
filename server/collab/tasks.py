@@ -26,12 +26,15 @@ def match(task_id):
     source_vectors = Vector.objects.filter(strategy.get_source_filters())
     target_vectors = Vector.objects.filter(strategy.get_target_filters())
 
+    # building steps according to strategy
+    steps = strategy.get_ordered_steps(source_vectors, target_vectors)
+
     # recording the task has started
     task.update(status=Task.STATUS_STARTED, task_id=match.request.id,
-                progress_max=len(strategy), progress=0)
+                progress_max=len(steps), progress=0)
 
-    print("Running task {}".format(match.request.id))
-    for step in strategy:
+    print("Running task {}, strategy {}".format(match.request.id, strategy))
+    for step in steps:
       match_by_step(task_id, step, source_vectors, target_vectors)
       task.update(progress=F('progress') + 1)
   except Exception:

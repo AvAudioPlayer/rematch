@@ -12,5 +12,8 @@ class AllStrategy(Strategy):
                           "provides as many results as possible (which can be "
                           "an advantage or a disadvantage at the same time).")
 
-  def get_ordered_steps(self):
+  def get_ordered_steps(self, source_vectors, target_vectors):
+    del source_vectors
+    del target_vectors
+
     return [StrategyStep(matcher) for matcher in self.ordered_matchers]

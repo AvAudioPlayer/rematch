@@ -17,12 +17,6 @@ class Strategy(object):
 
     self.matchers = set(json.loads(matchers))
     self.ordered_matchers = self.get_ordered_matchers()
-    self.ordered_steps = self.get_ordered_steps()
-
-    if len(self.matchers) != len(self.ordered_matchers):
-      raise ValueError("Requested matchers({}) and ordered matchers({}) have "
-                       "different lengths".format(len(self.matchers),
-                                                  len(self.ordered_matchers)))
 
   def get_source_filters(self):
     # make sure vector belongs to the file_version (and therefore the file)
@@ -54,16 +48,6 @@ class Strategy(object):
     # return matchers in self.matchers ordered by the order they appear in
     # matchers.matchers_list
     return [m for m in matchers_list if m.match_type in self.matchers]
-
-  def get_ordered_steps(self):
-    raise NotImplementedError("get_ordered_steps method must be implemeneted "
-                              "by a strategy implementation class.")
-
-  def __len__(self):
-    return len(self.ordered_steps)
-
-  def __getitem__(self, i):
-    return self.ordered_steps[i]
 
   @classmethod
   def is_abstract(cls):
